@@ -215,8 +215,8 @@ const ViewSeedDetailsModal = ({ listing }: { listing: Listing }) => {
                         <p>{listing.seedName}</p>
                       </div>
 
-                      <div className="flex justify-between mt-5">
-                        <h3>Description</h3>
+                      <div className="my-2">
+                        <h3>Description: {"  "}</h3>
                         <p>{listing.description}</p>
                       </div>
 
