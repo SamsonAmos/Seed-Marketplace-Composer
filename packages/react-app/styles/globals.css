@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+textarea::placeholder {
+  color: #a0aec0;
+  text-indent: 5px;
+  position: relative;
+  transform: translateY(20px);
+}
+
+.review-parent {
+  height: 100px;
+  overflow-y: scroll;
+}
