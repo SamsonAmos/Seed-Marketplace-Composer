@@ -1,29 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.3;
 
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
 // Interface for the ERC20 token, in our case cUSD
 interface IERC20Token {
-    // Transfers tokens from one address to another
     function transfer(address, uint256) external returns (bool);
-
-    // Approves a transfer of tokens from one address to another
     function approve(address, uint256) external returns (bool);
-
-    // Transfers tokens from one address to another, with the permission of the first address
     function transferFrom(address, address, uint256) external returns (bool);
-
-    // Returns the total supply of tokens
     function totalSupply() external view returns (uint256);
-
-    // Returns the balance of tokens for a given address
     function balanceOf(address) external view returns (uint256);
-
-    // Returns the amount of tokens that an address is allowed to transfer from another address
     function allowance(address, address) external view returns (uint256);
-
-    // Event for token transfers
     event Transfer(address indexed from, address indexed to, uint256 value);
-    // Event for approvals of token transfers
     event Approval(
         address indexed owner,
         address indexed spender,
@@ -31,7 +20,9 @@ interface IERC20Token {
     );
 }
 
-contract FarmerMarketplace {
+contract FarmerMarketplace is ReentrancyGuard {
+    using SafeMath for uint256;
+
     uint256 internal seedCount = 0;
     address internal cUsdTokenAddress =
         0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
@@ -56,7 +47,16 @@ contract FarmerMarketplace {
     mapping(uint256 => Seed) public seeds;
     mapping(uint256 => Comment[]) public seedComments;
 
-    // Function to list a seed
+    event SeedListed(
+        uint256 id,
+        address farmerId,
+        string seedName,
+        uint256 seedPrice,
+        uint256 quantity
+    );
+    event SeedPurchased(uint256 id, address buyer, uint256 quantity);
+    event CommentAdded(uint256 seedId, address commenter, string message);
+
     function listSeed(
         string memory _seedName,
         string memory _description,
@@ -74,35 +74,44 @@ contract FarmerMarketplace {
             _imageUrl,
             0
         );
-        // emit SeedListed(seedCount, msg.sender, _name, _price, _quantity);
+        emit SeedListed(
+            seedCount,
+            msg.sender,
+            _seedName,
+            _seedPrice,
+            _quantity
+        );
         seedCount++;
     }
 
-    // Buys a product from the marketplace
     function purchaseSeed(
-        // Index of the product
         uint256 _index,
         uint256 _quantity
-    ) public payable {
-        // Transfers the tokens from the buyer to the seller
+    ) public payable nonReentrant {
+        require(_index < seedCount, "Invalid seed index");
+        require(_quantity > 0, "Quantity must be greater than zero");
+        require(
+            seeds[_index].quantity >= _quantity,
+            "Not enough quantity available"
+        );
+
+        uint256 totalPrice = seeds[_index].seedPrice.mul(_quantity);
+
         require(
             IERC20Token(cUsdTokenAddress).transferFrom(
-                // Sender's address is the buyer
                 msg.sender,
-                // Receiver's address is the seller
                 seeds[_index].farmerId,
-                // Amount of tokens to transfer is the price of the product
-                seeds[_index].seedPrice
+                totalPrice
             ),
-            // If transfer fails, throw an error message
             "Transfer failed."
         );
-        // Increases the number of times the product has been sold
-        seeds[_index].seedSold += _quantity;
-        seeds[_index].quantity -= _quantity;
+
+        seeds[_index].seedSold = seeds[_index].seedSold.add(_quantity);
+        seeds[_index].quantity = seeds[_index].quantity.sub(_quantity);
+
+        emit SeedPurchased(_index, msg.sender, _quantity);
     }
 
-    // Function to view seed details
     function getSeed(
         uint256 _seedId
     )
@@ -132,7 +141,6 @@ contract FarmerMarketplace {
         );
     }
 
-    // Function to add a comment to a seed
     function addComment(uint256 _seedId, string memory _message) public {
         require(_seedId < seedCount, "Seed does not exist.");
         seedComments[_seedId].push(
@@ -142,9 +150,9 @@ contract FarmerMarketplace {
                 timestamp: block.timestamp
             })
         );
+        emit CommentAdded(_seedId, msg.sender, _message);
     }
 
-    // Function to get comments for a seed
     function getComments(
         uint256 _seedId
     ) public view returns (Comment[] memory) {
@@ -152,7 +160,6 @@ contract FarmerMarketplace {
         return seedComments[_seedId];
     }
 
-    // Function to delete a seed and associated comments
     function deleteSeed(uint256 id) public {
         require(id < seedCount, "Invalid seed index");
         require(
@@ -160,27 +167,13 @@ contract FarmerMarketplace {
             "Only the owner can delete this seed"
         );
 
-        // Delete associated comments
         delete seedComments[id];
+        delete seeds[id];
 
-        // Shift seeds and comments to maintain proper indexing
-        for (uint256 i = id; i < seedCount - 1; i++) {
-            // Shift seeds
-            seeds[i] = seeds[i + 1];
-
-            // Shift associated comments
-            seedComments[i] = seedComments[i + 1];
-        }
-
-        // Clear the last element for both seeds and comments
-        delete seeds[seedCount - 1];
-        delete seedComments[seedCount - 1];
-
-        // Decrement the seed count
         seedCount--;
     }
 
     function getSeedLength() public view returns (uint256) {
-        return (seedCount);
+        return seedCount;
     }
 }
