@@ -64,6 +64,12 @@ contract FarmerMarketplace {
         uint256 _quantity,
         string memory _imageUrl
     ) public {
+        require(bytes(_seedName).length > 0, "input data cannot be empty");
+        require(bytes(_description).length > 0, "input data cannot be empty");
+        require(bytes(_imageUrl).length > 0, "input data cannot be empty");
+        require(_seedPrice > 0, "price must be greater than 0");
+        require(_quantity > 0, "quantity must be greater than 0");
+
         seeds[seedCount] = Seed(
             seedCount,
             payable(msg.sender),

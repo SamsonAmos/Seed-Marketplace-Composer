@@ -72,6 +72,7 @@ const ViewSeedDetailsModal = ({ listing }: { listing: Listing }) => {
     setError("");
     setSuccess("");
     setLoading("");
+    setQuantityToBuy(1);
   };
 
   // Convert price to Wei format for transactions

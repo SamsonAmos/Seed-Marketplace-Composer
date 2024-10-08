@@ -45,6 +45,7 @@ const SeedListingList = () => {
           id={i}
           setError={setError}
           setLoading={setLoading}
+          loading={loading}
           clear={clear}
         />
       );

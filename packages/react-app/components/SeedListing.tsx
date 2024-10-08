@@ -32,11 +32,13 @@ const SeedListing = ({
   id,
   setError,
   setLoading,
+  loading,
   clear,
 }: {
   id: number;
   setError: any;
   setLoading: any;
+  loading: any;
   clear: any;
 }) => {
   const [showReview, setShowReview] = useState(false);
@@ -55,30 +57,80 @@ const SeedListing = ({
   ]);
 
   // Handle deletion of the seed listing
+  // const handleDelete = async () => {
+  //   if (!deleteSeedListing) {
+  //     throw new Error("Failed to delete seed listing");
+  //   }
+  //   setLoading("Deleting...");
+  //   const deleteTx = await deleteSeedListing();
+  //   setLoading("Waiting for confirmation...");
+  //   await deleteTx.wait();
+  // };
+
+  // Delete listing handler
+  // const deleteListing = async (e: any) => {
+  //   e.preventDefault();
+  //   try {
+  //     await toast.promise(handleDelete(), {
+  //       pending: "Deleting seed listing...",
+  //       success: "Seed listing deleted successfully",
+  //       error: "Failed to delete seed listing. Try again.",
+  //     });
+  //   } catch (error: any) {
+  //     console.error({ error });
+  //     toast.error(error?.message || "Something went wrong. Try again.");
+  //   } finally {
+  //     setLoading("");
+  //   }
+  // };
+
+  // Handle deletion of the seed listing
   const handleDelete = async () => {
     if (!deleteSeedListing) {
-      throw new Error("Failed to delete seed listing");
+      throw new Error("Delete functionality not available");
     }
+
     setLoading("Deleting...");
-    const deleteTx = await deleteSeedListing();
-    setLoading("Waiting for confirmation...");
-    await deleteTx.wait();
+
+    try {
+      const deleteTx = await deleteSeedListing();
+      if (!deleteTx) {
+        throw new Error("Transaction initiation failed");
+      }
+
+      setLoading("Waiting for confirmation...");
+      const receipt = await deleteTx.wait();
+
+      if (!receipt.status) {
+        throw new Error("Transaction failed. Seed listing not deleted.");
+      }
+
+      return receipt;
+    } catch (error: any) {
+      throw new Error(error.message || "An error occurred during deletion");
+    } finally {
+      setLoading("");
+    }
   };
 
   // Delete listing handler
   const deleteListing = async (e: any) => {
     e.preventDefault();
+
+    // Basic reentrancy protection
+    if (loading) {
+      return; // Prevents the user from submitting multiple delete requests
+    }
+
     try {
       await toast.promise(handleDelete(), {
         pending: "Deleting seed listing...",
         success: "Seed listing deleted successfully",
-        error: "Failed to delete seed listing. Try again.",
+        error: "Failed to delete seed listing. Please try again.",
       });
     } catch (error: any) {
       console.error({ error });
-      toast.error(error?.message || "Something went wrong. Try again.");
-    } finally {
-      setLoading("");
+      toast.error(error.message || "Something went wrong. Please try again.");
     }
   };
 
