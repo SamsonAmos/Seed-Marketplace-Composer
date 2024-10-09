@@ -56,35 +56,6 @@ const SeedListing = ({
     debouncedId,
   ]);
 
-  // Handle deletion of the seed listing
-  // const handleDelete = async () => {
-  //   if (!deleteSeedListing) {
-  //     throw new Error("Failed to delete seed listing");
-  //   }
-  //   setLoading("Deleting...");
-  //   const deleteTx = await deleteSeedListing();
-  //   setLoading("Waiting for confirmation...");
-  //   await deleteTx.wait();
-  // };
-
-  // Delete listing handler
-  // const deleteListing = async (e: any) => {
-  //   e.preventDefault();
-  //   try {
-  //     await toast.promise(handleDelete(), {
-  //       pending: "Deleting seed listing...",
-  //       success: "Seed listing deleted successfully",
-  //       error: "Failed to delete seed listing. Try again.",
-  //     });
-  //   } catch (error: any) {
-  //     console.error({ error });
-  //     toast.error(error?.message || "Something went wrong. Try again.");
-  //   } finally {
-  //     setLoading("");
-  //   }
-  // };
-
-  // Handle deletion of the seed listing
   const handleDelete = async () => {
     if (!deleteSeedListing) {
       throw new Error("Delete functionality not available");
@@ -117,7 +88,6 @@ const SeedListing = ({
   const deleteListing = async (e: any) => {
     e.preventDefault();
 
-    // Basic reentrancy protection
     if (loading) {
       return; // Prevents the user from submitting multiple delete requests
     }
@@ -173,8 +143,10 @@ const SeedListing = ({
           <img
             src="/delete.png"
             alt="Delete Listing"
-            className="absolute top-2 right-2 w-8 h-8 cursor-pointer"
-            onClick={(e) => deleteListing(e)}
+            className={`absolute top-2 right-2 w-8 h-8 cursor-pointer ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            onClick={loading ? undefined : (e) => deleteListing(e)}
           />
 
           <img

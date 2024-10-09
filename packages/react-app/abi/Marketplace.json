@@ -1,5 +1,5 @@
 {
-  "address": "0xfCADD16F138De2c27b06a3f3159C5753d2816cBA",
+  "address": "0x0f306B4eF0B3e63B668A0cf9791990ce73D7d61B",
   "abi": [
     {
       "inputs": [
@@ -272,6 +272,24 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_seedId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_quantity",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateSeedQuantity",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

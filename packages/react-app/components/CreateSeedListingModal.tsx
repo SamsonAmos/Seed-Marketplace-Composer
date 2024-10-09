@@ -163,7 +163,7 @@ const CreateSeedListingModal = () => {
                       onChange={(e) => setPrice(e.target.value)}
                       required
                       type="number"
-                      min="0"
+                      min="1"
                       className="w-full bg-gray-100 p-2 mt-2 mb-3"
                     />
 
@@ -173,7 +173,7 @@ const CreateSeedListingModal = () => {
                       onChange={(e) => setQuantity(e.target.value)}
                       required
                       type="number"
-                      min="0"
+                      min="1"
                       className="w-full bg-gray-100 p-2 mt-2 mb-3"
                     />
 

@@ -11,6 +11,7 @@ import { identiconTemplate } from "@/helpers";
 import { useContractApprove } from "@/hooks/contracts/useApprove";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import CommentSection from "./CommentSection";
+import UpdateSeedDetailsModal from "./UpdateSeed";
 
 interface Listing {
   id: number;
@@ -116,7 +117,6 @@ const ViewSeedDetailsModal = ({ listing }: { listing: Listing }) => {
   // Purchase seed with proper UI feedback
   const purchaseProduct = async () => {
     setLoading("Approving ...");
-    clear();
 
     try {
       if (!address && openConnectModal) {
@@ -128,6 +128,8 @@ const ViewSeedDetailsModal = ({ listing }: { listing: Listing }) => {
         success: "Product purchased successfully",
         error: "Failed to purchase product",
       });
+
+      clear();
     } catch (e: any) {
       setError(e?.reason || e?.message || "Something went wrong. Try again.");
     } finally {
@@ -181,8 +183,12 @@ const ViewSeedDetailsModal = ({ listing }: { listing: Listing }) => {
                 aria-labelledby="modal-headline"
               >
                 {/* Modal Header */}
-                <div className="bg-gray-100 px-4 py-3 border-b border-gray-200">
+                <div className="bg-gray-100 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
                   <h2 className="text-lg font-medium text-gray-900">Details</h2>
+
+                  <div className="flex justify-between">
+                    <UpdateSeedDetailsModal listing={listing} />
+                  </div>
                 </div>
 
                 {/* Modal Body */}

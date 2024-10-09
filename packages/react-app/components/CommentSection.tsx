@@ -153,6 +153,7 @@ const CommentSection = ({ id }: any) => {
         <button
           type="submit"
           className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+          disabled={!!loading}
         >
           {loading ? loading : "Add Comment"}
         </button>

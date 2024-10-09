@@ -84,12 +84,25 @@ contract FarmerMarketplace {
         seedCount++;
     }
 
-    // Buys a product from the marketplace
-    function purchaseSeed(
-        // Index of the product
-        uint256 _index,
-        uint256 _quantity
-    ) public payable {
+    // Function to update seed quantity
+    function updateSeedQuantity(uint256 _seedId, uint256 _quantity) public {
+        // Check that the seed exists
+        require(_seedId < seedCount, "Seed does not exist.");
+
+        // Check that the sender is the owner of the seed
+        require(
+            msg.sender == seeds[_seedId].farmerId,
+            "Only the farmer can update this seed."
+        );
+
+        // Validate the input data
+        require(_quantity > 0, "Quantity cannot be negative.");
+
+        seeds[_seedId].quantity = _quantity;
+    }
+
+    // function to purchase a seed
+    function purchaseSeed(uint256 _index, uint256 _quantity) public payable {
         // Transfers the tokens from the buyer to the seller
         require(
             IERC20Token(cUsdTokenAddress).transferFrom(
@@ -97,7 +110,6 @@ contract FarmerMarketplace {
                 msg.sender,
                 // Receiver's address is the seller
                 seeds[_index].farmerId,
-                // Amount of tokens to transfer is the price of the product
                 seeds[_index].seedPrice
             ),
             // If transfer fails, throw an error message
